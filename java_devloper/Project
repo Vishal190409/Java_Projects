@@ -1,0 +1,43 @@
+package Java_Developer;
+import java.util.Scanner;
+public class Currency_change {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		Scanner sc=new Scanner(System.in);
+		System.out.println("1------Input in Rupees ");
+		System.out.println("2------Input in Dollars");
+		System.out.println("3------Input in Pounds ");
+		System.out.println("Please select One of the option : ");
+		int a=sc.nextInt();
+		if(a==1) {
+			System.out.println("Enter the amount in Rupess(INR) : ");
+			double Inr=sc.nextDouble();
+			double us=Inr*(0.012);
+			double p=Inr*(0.0093);
+			System.out.println("The amount in Dollars : "+us);
+			System.out.println("The amount in pounds  : "+p);
+		}
+		else if(a==2) {
+			System.out.println("Enter the amount in Dollars(Us) : ");
+			double us=sc.nextDouble();
+			double Inr=us*84.39;   //(3/250);
+			double p=us*(0.79);
+			System.out.println("The amount in INR   : "+Inr);
+			System.out.println("The amount in Pound : "+p);
+		}
+		else if(a==3) {
+			System.out.println("Enter the amount in Pounds(UK) : ");
+			double p=sc.nextDouble();
+			double Inr=p* 107.43  ;
+			double us=p* 1.27 ;
+			System.out.println("The amount in INR     : "+Inr);
+			System.out.println("The amount in Dollars : "+us);
+		}
+		else {
+			System.out.println("Please enter a Valid input......");
+		}
+
+	}
+
+}
