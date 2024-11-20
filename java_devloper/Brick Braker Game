@@ -1,0 +1,209 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Class extends JPanel implements ActionListener, KeyListener {
+    // Game constants
+    private static final int WIDTH = 800, HEIGHT = 600;
+    private static final int BALL_SIZE = 15, PADDLE_WIDTH = 100, PADDLE_HEIGHT = 10, BRICK_WIDTH = 75, BRICK_HEIGHT = 30;
+    private Timer gameTimer;
+    private Ball ball;
+    private Paddle paddle;
+    private List<Brick> bricks;
+    
+    private boolean gameRunning = true;
+    private int score = 0;
+
+    public Class() {
+        setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        setBackground(Color.BLACK);
+        setFocusable(true);
+        addKeyListener(this);
+
+        ball = new Ball(WIDTH / 2, HEIGHT - 100, BALL_SIZE);
+        paddle = new Paddle(WIDTH / 2 - PADDLE_WIDTH / 2, HEIGHT - 50, PADDLE_WIDTH, PADDLE_HEIGHT);
+        bricks = new ArrayList<>();
+        
+        // Create the bricks
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 8; j++) {
+                bricks.add(new Brick(j * (BRICK_WIDTH + 5) + 35, i * (BRICK_HEIGHT + 5) + 50, BRICK_WIDTH, BRICK_HEIGHT));
+            }
+        }
+
+        gameTimer = new Timer(1, this);  // Update every 10 ms
+        gameTimer.start();
+    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        if (gameRunning) {
+            // Draw the ball
+            ball.draw(g);
+
+            // Draw the paddle
+            paddle.draw(g);
+
+            // Draw the bricks
+            for (Brick brick : bricks) {
+                if (brick.isVisible()) {
+                    brick.draw(g);
+                }
+            }
+
+            // Draw the score
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Arial", Font.PLAIN, 18));
+            g.drawString("Score: " + score, 10, 20);
+        } else {
+            // Game over screen
+            g.setColor(Color.RED);
+            g.setFont(new Font("Arial", Font.BOLD, 30));
+            g.drawString("Game Over", WIDTH / 2 - 100, HEIGHT / 2);
+            g.drawString("Final Score: " + score, WIDTH / 2 - 100, HEIGHT / 2 + 40);
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (gameRunning) {
+            // Move the ball
+            ball.move();
+
+            // Check for collisions with walls
+            if (ball.x <= 0 || ball.x >= WIDTH - BALL_SIZE) {
+                ball.reverseDirectionX();
+            }
+            if (ball.y <= 0) {
+                ball.reverseDirectionY();
+            }
+
+            // Check for collision with paddle
+            if (ball.intersects(paddle)) {
+                ball.reverseDirectionY();
+            }
+
+            // Check for collisions with bricks
+            for (Brick brick : bricks) {
+                if (ball.intersects(brick) && brick.isVisible()) {
+                    brick.setVisible(false);  // Destroy the brick
+                    ball.reverseDirectionY();  // Reverse ball direction
+                    score += 10;  // Increase score
+                }
+            }
+
+            // Check if the ball falls below the paddle
+            if (ball.y >= HEIGHT) {
+                gameRunning = false;  // Game over if ball falls
+            }
+
+            // Redraw the game
+            repaint();
+        }
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {}
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+            paddle.moveLeft();
+        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            paddle.moveRight();
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {}
+
+    // Ball class
+    class Ball extends Rectangle {
+        private int dx = 2, dy = -2;
+
+        public Ball(int x, int y, int size) {
+            super(x, y, size, size);
+        }
+
+        public void move() {
+            x += dx;
+            y += dy;
+        }
+
+        public void reverseDirectionX() {
+            dx = -dx;
+        }
+
+        public void reverseDirectionY() {
+            dy = -dy;
+        }
+
+        public void draw(Graphics g) {
+            g.setColor(Color.WHITE);
+            g.fillOval(x, y, width, height);
+        }
+    }
+
+    // Paddle class
+    class Paddle extends Rectangle {
+        public Paddle(int x, int y, int width, int height) {
+            super(x, y, width, height);
+        }
+
+        public void moveLeft() {
+            if (x > 0) {
+                x -= 20;
+            }
+        }
+
+        public void moveRight() {
+            if (x < WIDTH - PADDLE_WIDTH) {
+                x += 20;
+            }
+        }
+
+        public void draw(Graphics g) {
+            g.setColor(Color.BLUE);
+            g.fillRect(x, y, width, height);
+        }
+    }
+
+    // Brick class
+    class Brick extends Rectangle {
+        private boolean visible = true;
+
+        public Brick(int x, int y, int width, int height) {
+            super(x, y, width, height);
+        }
+
+        public void setVisible(boolean visible) {
+            this.visible = visible;
+        }
+
+        public boolean isVisible() {
+            return visible;
+        }
+
+        public void draw(Graphics g) {
+            if (visible) {
+                g.setColor(Color.RED);
+                g.fillRect(x, y, width, height);
+            }
+        }
+    }
+
+    // Main method to run the game
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Brick Breaker");
+        Class game = new Class();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(game);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+}
