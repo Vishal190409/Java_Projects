@@ -1,0 +1,114 @@
+import java.util.*;
+
+class Student {
+    private String name;
+    private boolean present;
+
+    public Student(String name) {
+        this.name = name;
+        this.present = false; // By default, a student is absent
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isPresent() {
+        return present;
+    }
+
+    public void markPresent() {
+        this.present = true;
+    }
+
+    public void markAbsent() {
+        this.present = false;
+    }
+
+    @Override
+    public String toString() {
+        return name + " - " + (present ? "Present" : "Absent");
+    }
+}
+
+class AttendanceSystem {
+    private List<Student> students;
+
+    public AttendanceSystem() {
+        this.students = new ArrayList<>();
+    }
+
+    public void addStudent(String name) {
+        students.add(new Student(name));
+    }
+
+    public void markAttendance(String name, boolean present) {
+        for (Student student : students) {
+            if (student.getName().equalsIgnoreCase(name)) {
+                if (present) {
+                    student.markPresent();
+                } else {
+                    student.markAbsent();
+                }
+                System.out.println(name + " attendance marked as " + (present ? "Present" : "Absent"));
+                return;
+            }
+        }
+        System.out.println("Student not found.");
+    }
+
+    public void viewAttendance() {
+        System.out.println("Attendance List:");
+        for (Student student : students) {
+            System.out.println(student);
+        }
+    }
+}
+
+public class AttendanceManagement {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        AttendanceSystem attendanceSystem = new AttendanceSystem();
+
+        while (true) {
+            System.out.println("\nAttendance Management System");
+            System.out.println("1. Add Student");
+            System.out.println("2. Mark Attendance");
+            System.out.println("3. View Attendance");
+            System.out.println("4. Exit");
+            System.out.print("Choose an option: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter student name: ");
+                    String name = scanner.nextLine();
+                    attendanceSystem.addStudent(name);
+                    System.out.println("Student " + name + " added.");
+                    break;
+
+                case 2:
+                    System.out.print("Enter student name: ");
+                    String studentName = scanner.nextLine();
+                    System.out.print("Mark present? (true/false): ");
+                    boolean isPresent = scanner.nextBoolean();
+                    attendanceSystem.markAttendance(studentName, isPresent);
+                    break;
+
+                case 3:
+                    attendanceSystem.viewAttendance();
+                    break;
+
+                case 4:
+                    System.out.println("Exiting...");
+                    scanner.close();
+                    return;
+
+                default:
+                    System.out.println("Invalid option! Please try again.");
+            }
+        }
+    }
+}
